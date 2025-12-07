@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Profesora - Alcanzando las Estrellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="portal.css">
+</head>
+
+<body>
+    <div class="portal-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <img src="../assets/logo.webp" width="32" alt="Logo">
+                    <span>Portal Profesora</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <span>👥</span> Alumnas
+                </div>
+                <div class="nav-item">
+                    <span>📅</span> Clases
+                </div>
+                <div class="nav-item">
+                    <span>💰</span> Pagos
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="logout()">
+                    <span>🚪</span> Cerrar Sesión
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="portal-header">
+                <div>
+                    <h1 style="margin:0; font-size: 1.5rem;">Hola, <span id="teacherName">...</span> 👩‍🏫</h1>
+                    <p style="margin:0; color: var(--text-muted);">Panel de administración</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar" style="background: var(--accent);">AI</div>
+                </div>
+            </header>
+
+            <h3 style="margin-bottom: 1rem;">Próximas Clases y Asistencia</h3>
+            <div class="dashboard-grid" id="upcomingClasses"
+                style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <!-- Populated by JS -->
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Listado de Alumnas y Pagos</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Plan</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTable">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="portal.js"></script>
+    <script>
+        const user = checkAuth('teacher');
+        if (user) renderTeacherDashboard(user);
+    </script>
+</body>
+
+</html>
