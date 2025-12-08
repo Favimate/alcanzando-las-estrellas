@@ -1,1 +1,0 @@
-(function(){if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;try{var o=new IntersectionObserver(function(e){e.forEach(function(t){if(t.isIntersecting){t.target.classList.add('ae-in');o.unobserve(t.target)}})},{threshold:.12});document.querySelectorAll('.ae-reveal').forEach(function(e){o.observe(e)})}catch(e){}})();
