@@ -1,13 +1,35 @@
+// Data Persistence
+function initData() {
+  if (!localStorage.getItem('portalData')) {
+    localStorage.setItem('portalData', JSON.stringify(MOCK_DATA));
+  }
+}
+
+function getData() {
+  // Ensure data exists
+  initData();
+  return JSON.parse(localStorage.getItem('portalData'));
+}
+
+function saveData(data) {
+  localStorage.setItem('portalData', JSON.stringify(data));
+}
+
 // Auth Logic
+// Update login to use localStorage data instead of static MOCK_DATA
 function login(username, password) {
-  const student = MOCK_DATA.students.find(s => s.id === username && s.password === password);
+  const data = getData();
+  const student = data.students.find(s => s.id === username && s.password === password);
+
   if (student) {
+    // Only store minimal session info, but for this mock we store the whole object + role
+    // We should probably re-fetch current data on dashboard load to be safe
     localStorage.setItem('currentUser', JSON.stringify({ ...student, role: 'student' }));
     window.location.href = 'student.html';
     return;
   }
 
-  const teacher = MOCK_DATA.teachers.find(t => t.id === username && t.password === password);
+  const teacher = data.teachers.find(t => t.id === username && t.password === password);
   if (teacher) {
     localStorage.setItem('currentUser', JSON.stringify({ ...teacher, role: 'teacher' }));
     window.location.href = 'teacher.html';
@@ -118,17 +140,180 @@ function confirmAttendance(classId) {
   }
 }
 
+// Teachers Dashboard Logic
+let currentFilter = 'active';
+
+function filterStudents(status) {
+  currentFilter = status;
+  // Update Buttons UI
+  document.getElementById('btnShowActive').className = status === 'active' ? 'btn btn-sm active' : 'btn btn-sm btn-ghost';
+  document.getElementById('btnShowArchived').className = status === 'archived' ? 'btn btn-sm active' : 'btn btn-sm btn-ghost';
+
+  // Re-render
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  renderTeacherDashboard(user);
+}
+
+function openStudentModal(studentId = null) {
+  const modal = document.getElementById('studentModal');
+  const form = document.getElementById('studentForm');
+
+  if (studentId) {
+    document.getElementById('modalTitle').textContent = 'Editar Alumna';
+    const data = getData();
+    // Find student in the global list first (teachers have a subset usually, but let's look in global)
+    // Actually, in this mock structure, teacher.students is a separate array from global.students which is messy.
+    // For this CRUD to work properly, we should treat global 'students' as the source of truth
+    // and 'teacher.students' as just a derived view or reference.
+    // To simplify: we will edit the global student list, and also update the teacher's list if present.
+
+    // Find student in teacher's list for now since that's what we render
+    const teacher = JSON.parse(localStorage.getItem('currentUser'));
+    const student = teacher.students.find(s => s.id === studentId);
+
+    if (student) {
+      document.getElementById('studentId').value = student.id;
+      document.getElementById('editName').value = student.name;
+      document.getElementById('editEmail').value = student.email || student.id; // Use ID as email fallback
+      document.getElementById('editPlan').value = student.plan;
+      document.getElementById('editPassword').value = '';
+    }
+  } else {
+    document.getElementById('modalTitle').textContent = 'Nueva Alumna';
+    form.reset();
+    document.getElementById('studentId').value = '';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeStudentModal() {
+  document.getElementById('studentModal').style.display = 'none';
+}
+
+function handleStudentSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('studentId').value;
+  const name = document.getElementById('editName').value;
+  const email = document.getElementById('editEmail').value;
+  const plan = document.getElementById('editPlan').value;
+  const password = document.getElementById('editPassword').value;
+
+  const data = getData();
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+  // Update Global Data
+  let studentObj;
+
+  if (id) {
+    // Edit existing
+    // 1. Update in global students list
+    studentObj = data.students.find(s => s.id === id);
+    if (!studentObj) {
+      // Create if missing (edge case)
+      studentObj = { id: id, schedule: [], paymentSchedule: [] };
+      data.students.push(studentObj);
+    }
+
+    studentObj.name = name;
+    studentObj.plan = plan;
+    // Update ID/Email if changed? Changing ID is tricky for relations, let's assume Email is just a display field for now unless it's the ID.
+    // In this mock, ID = Email often.
+    if (password) studentObj.password = password;
+
+    // 2. Update in teacher's list
+    // We need to find the teacher in global data to save permanently
+    const globalTeacher = data.teachers.find(t => t.id === currentUser.id);
+    const teacherStudent = globalTeacher.students.find(s => s.id === id);
+    if (teacherStudent) {
+      teacherStudent.name = name;
+      teacherStudent.plan = plan;
+      teacherStudent.email = email;
+    }
+
+  } else {
+    // Create New
+    const newId = email; // Simple ID generation
+
+    // 1. Add to global students
+    const newStudent = {
+      id: newId,
+      password: password || '123',
+      name: name,
+      plan: plan,
+      email: email,
+      classesRemaining: 0,
+      paymentSchedule: [],
+      schedule: []
+    };
+    data.students.push(newStudent);
+
+    // 2. Add to teacher's list
+    const globalTeacher = data.teachers.find(t => t.id === currentUser.id);
+    globalTeacher.students.push({
+      id: newId,
+      name: name,
+      plan: plan,
+      email: email,
+      paymentStatus: 'Pending',
+      archived: false
+    });
+  }
+
+  saveData(data);
+
+  // Refresh UI
+  // We need to reload the current user from the updated global data
+  const updatedTeacher = data.teachers.find(t => t.id === currentUser.id);
+  localStorage.setItem('currentUser', JSON.stringify({ ...updatedTeacher, role: 'teacher' }));
+
+  renderTeacherDashboard(updatedTeacher);
+  closeStudentModal();
+}
+
+function toggleArchiveStudent(id) {
+  if (!confirm('¿Estás seguro de realizar esta acción?')) return;
+
+  const data = getData();
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const globalTeacher = data.teachers.find(t => t.id === currentUser.id);
+  const student = globalTeacher.students.find(s => s.id === id);
+
+  if (student) {
+    student.archived = !student.archived;
+    saveData(data);
+
+    // Refresh
+    const updatedTeacher = data.teachers.find(t => t.id === currentUser.id);
+    localStorage.setItem('currentUser', JSON.stringify({ ...updatedTeacher, role: 'teacher' }));
+    renderTeacherDashboard(updatedTeacher);
+  }
+}
+
 function renderTeacherDashboard(user) {
   document.getElementById('teacherName').textContent = user.name;
 
-  const studentsHtml = user.students.map(s => {
+  // Defaults
+  if (!user.students) user.students = [];
+
+  const filteredStudents = user.students.filter(s => {
+    if (currentFilter === 'active') return !s.archived;
+    if (currentFilter === 'archived') return s.archived;
+    return true;
+  });
+
+  const studentsHtml = filteredStudents.map(s => {
     const statusColor = s.paymentStatus === 'Paid' ? 'var(--success)' :
       (s.paymentStatus === 'Overdue' ? 'var(--danger, #e74c3c)' : 'var(--warning, #f1c40f)');
+
+    const archiveBtnText = s.archived ? 'Restaurar' : 'Archivar';
+    const archiveBtnIcon = s.archived ? '♻️' : '📁';
+
     return `
         <tr>
           <td>
             <div style="font-weight: bold;">${s.name}</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">${s.email}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">${s.email || s.id}</div>
           </td>
           <td>${s.plan}</td>
           <td>
@@ -136,10 +321,18 @@ function renderTeacherDashboard(user) {
                 ${s.paymentStatus === 'Overdue' ? 'Vencido' : (s.paymentStatus === 'Paid' ? 'Al día' : 'Pendiente')}
             </span>
           </td>
-          <td><button class="btn btn-ghost" style="padding: 0.25rem 0.5rem; font-size: 0.8rem">Ver Ficha</button></td>
+          <td>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-sm btn-ghost" onclick="openStudentModal('${s.id}')">✏️</button>
+                <button class="btn btn-sm btn-ghost" onclick="toggleArchiveStudent('${s.id}')" title="${archiveBtnText}">${archiveBtnIcon}</button>
+            </div>
+          </td>
         </tr>
       `}).join('');
-  document.getElementById('studentsTable').innerHTML = studentsHtml;
+
+  const tableBody = document.getElementById('studentsTable');
+  if (tableBody) tableBody.innerHTML = studentsHtml;
+  else console.error('Table body not found');
 
   const classesHtml = user.upcomingClasses.map(c => {
     const confirmedCount = c.attendees.filter(a => a.status === 'Confirmed').length;
@@ -165,5 +358,7 @@ function renderTeacherDashboard(user) {
           </div>
         </div>
       `}).join('');
-  document.getElementById('upcomingClasses').innerHTML = classesHtml;
+
+  const upcomingClassesContainer = document.getElementById('upcomingClasses');
+  if (upcomingClassesContainer) upcomingClassesContainer.innerHTML = classesHtml;
 }
