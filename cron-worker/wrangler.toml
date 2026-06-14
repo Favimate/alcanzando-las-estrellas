@@ -8,4 +8,4 @@ crons = ["0 12 * * *"]   # 12:00 UTC = 09:00 Chile (CLT UTC-3)
 [[d1_databases]]
 binding = "DB"
 database_name = "academia-db"
-database_id = "REEMPLAZAR_CON_ID_REAL"   # mismo ID que wrangler.toml raíz
+database_id = "17c328d6-c2b4-4b30-aaaf-ccce63d8ee7f"

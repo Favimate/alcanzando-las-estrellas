@@ -5,4 +5,4 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "academia-db"
-database_id = "REEMPLAZAR_CON_ID_REAL"
+database_id = "17c328d6-c2b4-4b30-aaaf-ccce63d8ee7f"
