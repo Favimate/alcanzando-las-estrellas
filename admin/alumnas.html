@@ -11,7 +11,6 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-  <!-- NAV -->
   <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
@@ -23,17 +22,15 @@
         <span class="font-bold text-gray-800 text-sm hidden sm:block">Alcanzando las Estrellas</span>
       </div>
       <div class="flex items-center gap-1">
-        <a href="/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Dashboard</a>
-        <a href="/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Alumnas</a>
-        <a href="/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Pagos</a>
+        <a href="/admin/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Dashboard</a>
+        <a href="/admin/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Alumnas</a>
+        <a href="/admin/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Pagos</a>
         <button id="btnLogout" class="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50">Salir</button>
       </div>
     </div>
   </nav>
 
   <main class="max-w-6xl mx-auto px-4 py-8">
-
-    <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Alumnas</h1>
@@ -48,13 +45,11 @@
       </button>
     </div>
 
-    <!-- Buscador -->
     <div class="mb-4">
       <input id="buscador" type="text" placeholder="Buscar por nombre o teléfono…"
         class="w-full sm:w-80 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm" />
     </div>
 
-    <!-- Tabla -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <table class="w-full text-sm">
         <thead>
@@ -74,7 +69,7 @@
     </div>
   </main>
 
-  <!-- Modal Alumna (crear / editar) -->
+  <!-- Modal Alumna -->
   <div id="modalAlumna" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
       <h2 id="modalTitulo" class="text-lg font-bold text-gray-800 mb-4">Nueva Alumna</h2>
@@ -128,7 +123,7 @@
     </div>
   </div>
 
-  <!-- Modal Confirmar eliminar -->
+  <!-- Modal Confirmar desactivar -->
   <div id="modalEliminar" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
       <div class="flex items-center gap-3 mb-3">
@@ -149,25 +144,25 @@
 
   <script>
     const TOKEN = localStorage.getItem('token');
-    if (!TOKEN) window.location.href = '/';
+    if (!TOKEN) window.location.href = '/admin/';
 
     const PLANES = { 1:'1 clase/sem', 2:'2 clases/sem', 3:'3 clases/sem' };
     const MONTOS = { 1:'$45.000', 2:'$55.000', 3:'$65.000' };
 
     const api = (path, opts={}) => fetch(`/api/${path}`, {
       ...opts,
-      headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
+      headers: { 'Authorization':`Bearer ${TOKEN}`, 'Content-Type':'application/json', ...(opts.headers||{}) }
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => {
-      localStorage.removeItem('token'); window.location.href = '/';
+      localStorage.removeItem('token'); window.location.href = '/admin/';
     });
 
     let alumnas = [];
 
     async function cargarAlumnas() {
       const res = await api('alumnas?activas=false');
-      if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/'; return; }
+      if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/admin/'; return; }
       alumnas = await res.json();
       renderTabla(alumnas);
       const activas = alumnas.filter(a => a.activa).length;
@@ -225,15 +220,11 @@
       return `${d}/${m}/${y}`;
     }
 
-    // Buscador
     document.getElementById('buscador').addEventListener('input', function() {
       const q = this.value.toLowerCase();
-      renderTabla(alumnas.filter(a =>
-        a.nombre.toLowerCase().includes(q) || a.telefono.includes(q)
-      ));
+      renderTabla(alumnas.filter(a => a.nombre.toLowerCase().includes(q) || a.telefono.includes(q)));
     });
 
-    // Modal nueva alumna
     document.getElementById('btnNueva').addEventListener('click', () => {
       document.getElementById('modalTitulo').textContent = 'Nueva Alumna';
       document.getElementById('formAlumna').reset();
@@ -270,23 +261,20 @@
       errDiv.classList.add('hidden');
       const btn = document.getElementById('btnGuardar');
       btn.disabled = true;
-
-      const id      = document.getElementById('alumnaId').value;
+      const id       = document.getElementById('alumnaId').value;
       const telefono = '+56' + document.getElementById('fTelefono').value.replace(/^0/,'');
-      const payload = {
-        nombre:       document.getElementById('fNombre').value.trim(),
+      const payload  = {
+        nombre:        document.getElementById('fNombre').value.trim(),
         telefono,
-        plan:         Number(document.getElementById('fPlan').value),
+        plan:          Number(document.getElementById('fPlan').value),
         fecha_ingreso: document.getElementById('fIngreso').value,
-        notas:        document.getElementById('fNotas').value.trim(),
-        activa:       document.getElementById('fActiva').checked,
+        notas:         document.getElementById('fNotas').value.trim(),
+        activa:        document.getElementById('fActiva').checked,
       };
-
       try {
         const res = id
-          ? await api(`alumnas/${id}`, { method:'PUT', body: JSON.stringify(payload) })
-          : await api('alumnas',       { method:'POST', body: JSON.stringify(payload) });
-
+          ? await api(`alumnas/${id}`, { method:'PUT',  body: JSON.stringify(payload) })
+          : await api('alumnas',        { method:'POST', body: JSON.stringify(payload) });
         if (res.ok) {
           document.getElementById('modalAlumna').classList.add('hidden');
           cargarAlumnas();
@@ -299,7 +287,6 @@
         errDiv.textContent = 'Error de conexión';
         errDiv.classList.remove('hidden');
       }
-
       btn.disabled = false;
     });
 
@@ -316,7 +303,7 @@
 
     document.getElementById('btnConfirmarElim').addEventListener('click', async () => {
       if (!eliminarId) return;
-      await api(`alumnas/${eliminarId}`, { method: 'DELETE' });
+      await api(`alumnas/${eliminarId}`, { method:'DELETE' });
       document.getElementById('modalEliminar').classList.add('hidden');
       cargarAlumnas();
     });

@@ -11,7 +11,6 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-  <!-- NAV -->
   <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
@@ -23,24 +22,22 @@
         <span class="font-bold text-gray-800 text-sm hidden sm:block">Alcanzando las Estrellas</span>
       </div>
       <div class="flex items-center gap-1">
-        <a href="/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Dashboard</a>
-        <a href="/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Alumnas</a>
-        <a href="/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Pagos</a>
+        <a href="/admin/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Dashboard</a>
+        <a href="/admin/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Alumnas</a>
+        <a href="/admin/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Pagos</a>
         <button id="btnLogout" class="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50">Salir</button>
       </div>
     </div>
   </nav>
 
   <main class="max-w-6xl mx-auto px-4 py-8">
-
-    <!-- Header -->
     <div class="mb-8 flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
         <p id="subtitulo" class="text-gray-500 text-sm mt-1">Cargando…</p>
       </div>
       <div class="flex gap-2">
-        <button id="btnConfig" onclick="document.getElementById('modalConfig').classList.remove('hidden')"
+        <button onclick="document.getElementById('modalConfig').classList.remove('hidden')"
           class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -59,7 +56,6 @@
       </div>
     </div>
 
-    <!-- Tarjetas resumen -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Alumnas</p>
@@ -76,16 +72,15 @@
         <p id="statPendientes" class="text-3xl font-bold text-amber-500 mt-1">—</p>
         <p class="text-xs text-gray-400 mt-1">sin pagar</p>
       </div>
-      <div class="bg-white rounded-2xl p-5 shadow-sm border border-green-100 bg-gradient-to-br from-white to-red-50">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Deuda Total</p>
         <p id="statDeuda" class="text-3xl font-bold text-red-500 mt-1">—</p>
         <p class="text-xs text-gray-400 mt-1">este mes</p>
       </div>
     </div>
 
-    <!-- Accesos rápidos -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <a href="/alumnas.html"
+      <a href="/admin/alumnas.html"
         class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-purple-200 hover:shadow-md transition group flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-purple-100 group-hover:bg-purple-200 transition flex items-center justify-center">
           <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +93,7 @@
           <p class="text-sm text-gray-500">Agregar, editar o desactivar alumnas</p>
         </div>
       </a>
-      <a href="/pagos.html"
+      <a href="/admin/pagos.html"
         class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-purple-200 hover:shadow-md transition group flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-green-100 group-hover:bg-green-200 transition flex items-center justify-center">
           <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +107,6 @@
         </div>
       </a>
     </div>
-
   </main>
 
   <!-- Modal Configuración -->
@@ -167,7 +161,7 @@
 
   <script>
     const TOKEN = localStorage.getItem('token');
-    if (!TOKEN) window.location.href = '/';
+    if (!TOKEN) window.location.href = '/admin/';
 
     const api = (path, opts={}) => fetch(`/api/${path}`, {
       ...opts,
@@ -175,40 +169,31 @@
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = '/';
+      localStorage.removeItem('token'); window.location.href = '/admin/';
     });
 
     const fmt = n => '$' + Number(n).toLocaleString('es-CL');
 
     async function cargarDashboard() {
       try {
-        const res  = await api('dashboard');
-        if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/'; return; }
+        const res = await api('dashboard');
+        if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/admin/'; return; }
         const data = await res.json();
-
         document.getElementById('subtitulo').textContent =
           `Resumen de ${data.nombre_mes} ${data.año} — vence el día ${data.config?.dia_vencimiento || 5}`;
-        document.getElementById('statTotal').textContent     = data.total_alumnas ?? 0;
-        document.getElementById('statPagadas').textContent   = data.pagadas ?? 0;
+        document.getElementById('statTotal').textContent      = data.total_alumnas ?? 0;
+        document.getElementById('statPagadas').textContent    = data.pagadas ?? 0;
         document.getElementById('statPendientes').textContent = data.pendientes ?? 0;
-        document.getElementById('statDeuda').textContent     = fmt(data.deuda_total ?? 0);
-
-        // Pre-cargar config en modal
-        document.getElementById('cfgDia').value   = data.config?.dia_vencimiento || 5;
+        document.getElementById('statDeuda').textContent      = fmt(data.deuda_total ?? 0);
+        document.getElementById('cfgDia').value    = data.config?.dia_vencimiento || 5;
         document.getElementById('cfgNotif').checked = data.config?.notificaciones_activas === '1';
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
 
     document.getElementById('btnGuardarConfig').addEventListener('click', async () => {
       const dia   = document.getElementById('cfgDia').value;
       const notif = document.getElementById('cfgNotif').checked ? '1' : '0';
-      await api('config', {
-        method: 'PUT',
-        body: JSON.stringify({ dia_vencimiento: dia, notificaciones_activas: notif })
-      });
+      await api('config', { method:'PUT', body: JSON.stringify({ dia_vencimiento: dia, notificaciones_activas: notif }) });
       document.getElementById('modalConfig').classList.add('hidden');
       cargarDashboard();
     });
@@ -224,7 +209,6 @@
       const resultado = document.getElementById('wspResultado');
       resultado.textContent = 'Enviando…';
       resultado.classList.remove('hidden');
-
       try {
         const res  = await api('whatsapp', { method:'POST', body: JSON.stringify({ tipo }) });
         const data = await res.json();
@@ -232,10 +216,7 @@
           `<strong>✅ Enviados:</strong> ${data.total || 0}<br>` +
           (data.enviados?.length ? `<span class="text-gray-500">${data.enviados.join(', ')}</span><br>` : '') +
           (data.errores?.length  ? `<span class="text-red-500">⚠️ Errores: ${data.errores.map(e=>e.nombre).join(', ')}</span>` : '');
-      } catch {
-        resultado.textContent = '❌ Error al enviar';
-      }
-
+      } catch { resultado.textContent = '❌ Error al enviar'; }
       btns.forEach(b => b.disabled = false);
     }
 

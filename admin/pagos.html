@@ -11,7 +11,6 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-  <!-- NAV -->
   <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
@@ -23,33 +22,28 @@
         <span class="font-bold text-gray-800 text-sm hidden sm:block">Alcanzando las Estrellas</span>
       </div>
       <div class="flex items-center gap-1">
-        <a href="/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Dashboard</a>
-        <a href="/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Alumnas</a>
-        <a href="/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Pagos</a>
+        <a href="/admin/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Dashboard</a>
+        <a href="/admin/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Alumnas</a>
+        <a href="/admin/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Pagos</a>
         <button id="btnLogout" class="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50">Salir</button>
       </div>
     </div>
   </nav>
 
   <main class="max-w-6xl mx-auto px-4 py-8">
-
-    <!-- Header -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Control de Pagos</h1>
         <p id="subtitulo" class="text-gray-500 text-sm mt-1">Cargando…</p>
       </div>
-      <!-- Selector mes / año -->
       <div class="flex items-center gap-2">
-        <button id="btnMesAnterior"
-          class="p-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-600 transition">
+        <button id="btnMesAnterior" class="p-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-600 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
         <div class="flex gap-2">
-          <select id="selMes"
-            class="px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white">
+          <select id="selMes" class="px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white">
             <option value="1">Enero</option><option value="2">Febrero</option>
             <option value="3">Marzo</option><option value="4">Abril</option>
             <option value="5">Mayo</option><option value="6">Junio</option>
@@ -57,12 +51,9 @@
             <option value="9">Septiembre</option><option value="10">Octubre</option>
             <option value="11">Noviembre</option><option value="12">Diciembre</option>
           </select>
-          <select id="selAño"
-            class="px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white">
-          </select>
+          <select id="selAño" class="px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white"></select>
         </div>
-        <button id="btnMesSiguiente"
-          class="p-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-600 transition">
+        <button id="btnMesSiguiente" class="p-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-600 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
@@ -70,8 +61,7 @@
       </div>
     </div>
 
-    <!-- Barra de resumen rápido -->
-    <div id="barraResumen" class="flex gap-4 mb-6 flex-wrap">
+    <div class="flex gap-4 mb-6 flex-wrap">
       <div class="flex items-center gap-2 text-sm">
         <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
         <span class="text-gray-600">Pagadas: <strong id="cntPagadas" class="text-green-700">—</strong></span>
@@ -88,7 +78,6 @@
       </div>
     </div>
 
-    <!-- Tabla de pagos -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <table class="w-full text-sm">
         <thead>
@@ -107,7 +96,6 @@
       </table>
     </div>
 
-    <!-- Botón marcar todas pagadas -->
     <div class="mt-4 flex justify-end">
       <button id="btnMarcarTodas"
         class="px-4 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2">
@@ -119,15 +107,15 @@
     </div>
   </main>
 
-  <!-- Toast -->
-  <div id="toast" class="hidden fixed bottom-6 right-6 px-5 py-3 rounded-2xl text-white text-sm font-medium shadow-lg z-50 transition"></div>
+  <div id="toast" class="hidden fixed bottom-6 right-6 px-5 py-3 rounded-2xl text-white text-sm font-medium shadow-lg z-50"></div>
 
   <script>
     const TOKEN = localStorage.getItem('token');
-    if (!TOKEN) window.location.href = '/';
+    if (!TOKEN) window.location.href = '/admin/';
 
     const PLANES = { 1:'1 clase/sem', 2:'2 clases/sem', 3:'3 clases/sem' };
-    const fmt = n => '$' + Number(n).toLocaleString('es-CL');
+    const MESES  = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const fmt    = n => '$' + Number(n).toLocaleString('es-CL');
 
     const api = (path, opts={}) => fetch(`/api/${path}`, {
       ...opts,
@@ -135,58 +123,44 @@
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => {
-      localStorage.removeItem('token'); window.location.href = '/';
+      localStorage.removeItem('token'); window.location.href = '/admin/';
     });
 
-    // Init selects
     const now = new Date();
-    let mesActual = now.getMonth() + 1;
-    let añoActual = now.getFullYear();
-
     const selMes = document.getElementById('selMes');
     const selAño = document.getElementById('selAño');
-
-    selMes.value = mesActual;
-    for (let y = añoActual; y >= añoActual - 3; y--) {
+    selMes.value = now.getMonth() + 1;
+    for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
       const opt = document.createElement('option');
       opt.value = y; opt.textContent = y;
       selAño.appendChild(opt);
     }
-    selAño.value = añoActual;
+    selAño.value = now.getFullYear();
 
     selMes.addEventListener('change', cargarPagos);
     selAño.addEventListener('change', cargarPagos);
 
     document.getElementById('btnMesAnterior').addEventListener('click', () => {
-      let m = Number(selMes.value) - 1;
-      let y = Number(selAño.value);
+      let m = Number(selMes.value) - 1, y = Number(selAño.value);
       if (m < 1) { m = 12; y--; }
-      selMes.value = m; selAño.value = y;
-      cargarPagos();
+      selMes.value = m; selAño.value = y; cargarPagos();
     });
-
     document.getElementById('btnMesSiguiente').addEventListener('click', () => {
-      let m = Number(selMes.value) + 1;
-      let y = Number(selAño.value);
+      let m = Number(selMes.value) + 1, y = Number(selAño.value);
       if (m > 12) { m = 1; y++; }
-      selMes.value = m; selAño.value = y;
-      cargarPagos();
+      selMes.value = m; selAño.value = y; cargarPagos();
     });
 
     let pagosData = [];
 
     async function cargarPagos() {
-      const mes = selMes.value;
-      const año = selAño.value;
+      const mes = selMes.value, año = selAño.value;
       const res = await api(`pagos?mes=${mes}&año=${año}`);
-      if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/'; return; }
+      if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/admin/'; return; }
       pagosData = await res.json();
-
-      const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
       document.getElementById('subtitulo').textContent = `${MESES[mes]} ${año}`;
 
-      // Resumen
-      const pagadas    = pagosData.filter(p => p.estado === 'pagado').length;
+      const pagadas   = pagosData.filter(p => p.estado === 'pagado').length;
       const pendientes = pagosData.filter(p => p.estado !== 'pagado').length;
       const recaudado  = pagosData.filter(p => p.estado === 'pagado').reduce((s,p) => s + (p.monto_pagado || p.monto_plan), 0);
       const porCobrar  = pagosData.filter(p => p.estado !== 'pagado').reduce((s,p) => s + p.monto_plan, 0);
@@ -205,7 +179,6 @@
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-400">No hay alumnas activas</td></tr>`;
         return;
       }
-
       tbody.innerHTML = pagosData.map(p => {
         const pagado = p.estado === 'pagado';
         return `
@@ -226,11 +199,9 @@
             ${p.fecha_pago ? formatFecha(p.fecha_pago) : '—'}
           </td>
           <td class="px-5 py-3 text-right">
-            <button onclick="togglePago(${p.id}, ${p.pago_id || 'null'}, '${pagado ? 'pendiente' : 'pagado'}')"
+            <button onclick="togglePago(${p.id}, '${pagado ? 'pendiente' : 'pagado'}')"
               class="px-3 py-1.5 rounded-lg text-xs font-medium transition
-                ${pagado
-                  ? 'text-amber-600 bg-amber-50 hover:bg-amber-100'
-                  : 'text-green-600 bg-green-50 hover:bg-green-100'}">
+                ${pagado ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' : 'text-green-600 bg-green-50 hover:bg-green-100'}">
               ${pagado ? '↩ Revertir' : '✓ Marcar pagado'}
             </button>
           </td>
@@ -244,38 +215,23 @@
       return `${d}/${m}/${y}`;
     }
 
-    async function togglePago(alumnaId, pagoId, nuevoEstado) {
-      const mes = Number(selMes.value);
-      const año = Number(selAño.value);
-
-      const res = await api('pagos', {
-        method: 'POST',
-        body: JSON.stringify({ alumna_id: alumnaId, mes, año, estado: nuevoEstado })
-      });
-
+    async function togglePago(alumnaId, nuevoEstado) {
+      const mes = Number(selMes.value), año = Number(selAño.value);
+      const res = await api('pagos', { method:'POST', body: JSON.stringify({ alumna_id: alumnaId, mes, año, estado: nuevoEstado }) });
       if (res.ok) {
         mostrarToast(nuevoEstado === 'pagado' ? '✅ Pago registrado' : '↩ Pago revertido',
           nuevoEstado === 'pagado' ? 'bg-green-600' : 'bg-amber-500');
         cargarPagos();
-      } else {
-        mostrarToast('❌ Error al actualizar', 'bg-red-500');
-      }
+      } else { mostrarToast('❌ Error al actualizar', 'bg-red-500'); }
     }
 
     document.getElementById('btnMarcarTodas').addEventListener('click', async () => {
       const pendientes = pagosData.filter(p => p.estado !== 'pagado');
       if (!pendientes.length) { mostrarToast('Todas ya están pagadas ✅', 'bg-purple-600'); return; }
-
-      const mes = Number(selMes.value);
-      const año = Number(selAño.value);
-
+      const mes = Number(selMes.value), año = Number(selAño.value);
       for (const p of pendientes) {
-        await api('pagos', {
-          method: 'POST',
-          body: JSON.stringify({ alumna_id: p.id, mes, año, estado: 'pagado' })
-        });
+        await api('pagos', { method:'POST', body: JSON.stringify({ alumna_id: p.id, mes, año, estado: 'pagado' }) });
       }
-
       mostrarToast(`✅ ${pendientes.length} pagos registrados`, 'bg-green-600');
       cargarPagos();
     });
