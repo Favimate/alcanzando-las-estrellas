@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alumnas — Alcanzando las Estrellas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>body { font-family:'Inter',sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- NAV -->
+  <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        </div>
+        <span class="font-bold text-gray-800 text-sm hidden sm:block">Alcanzando las Estrellas</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <a href="/dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Dashboard</a>
+        <a href="/alumnas.html"   class="px-3 py-2 rounded-lg text-sm font-medium bg-purple-50 text-purple-700">Alumnas</a>
+        <a href="/pagos.html"     class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">Pagos</a>
+        <button id="btnLogout" class="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50">Salir</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Alumnas</h1>
+        <p id="subtitulo" class="text-gray-500 text-sm mt-1">Cargando…</p>
+      </div>
+      <button id="btnNueva"
+        class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nueva Alumna
+      </button>
+    </div>
+
+    <!-- Buscador -->
+    <div class="mb-4">
+      <input id="buscador" type="text" placeholder="Buscar por nombre o teléfono…"
+        class="w-full sm:w-80 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm" />
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100 bg-gray-50">
+            <th class="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Nombre</th>
+            <th class="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden sm:table-cell">Teléfono</th>
+            <th class="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Plan</th>
+            <th class="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden md:table-cell">Ingreso</th>
+            <th class="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Estado</th>
+            <th class="px-5 py-3"></th>
+          </tr>
+        </thead>
+        <tbody id="tablaAlumnas">
+          <tr><td colspan="6" class="text-center py-10 text-gray-400">Cargando alumnas…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Alumna (crear / editar) -->
+  <div id="modalAlumna" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+      <h2 id="modalTitulo" class="text-lg font-bold text-gray-800 mb-4">Nueva Alumna</h2>
+      <form id="formAlumna" class="space-y-3">
+        <input type="hidden" id="alumnaId" />
+        <div>
+          <label class="text-xs font-medium text-gray-600">Nombre completo *</label>
+          <input id="fNombre" type="text" required
+            class="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm" />
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">Teléfono WhatsApp * <span class="text-gray-400">(ej: 912345678)</span></label>
+          <div class="flex mt-1">
+            <span class="px-3 py-2 rounded-l-xl border border-r-0 border-gray-200 bg-gray-50 text-sm text-gray-500">+56</span>
+            <input id="fTelefono" type="tel" required pattern="[0-9]{8,9}"
+              class="flex-1 px-3 py-2 rounded-r-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">Plan *</label>
+          <select id="fPlan" required
+            class="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white">
+            <option value="">Seleccionar…</option>
+            <option value="1">1 clase/semana — $45.000</option>
+            <option value="2">2 clases/semana — $55.000</option>
+            <option value="3">3 clases/semana — $65.000</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">Fecha de ingreso *</label>
+          <input id="fIngreso" type="date" required
+            class="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm" />
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">Notas (opcional)</label>
+          <textarea id="fNotas" rows="2"
+            class="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm resize-none"></textarea>
+        </div>
+        <div id="fActivaWrapper" class="hidden flex items-center gap-2">
+          <input id="fActiva" type="checkbox" class="w-4 h-4 accent-purple-600" />
+          <label class="text-sm text-gray-700">Alumna activa</label>
+        </div>
+        <div id="errForm" class="hidden text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg"></div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btnCancelar"
+            class="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" id="btnGuardar"
+            class="flex-1 py-2 rounded-xl bg-purple-600 text-white text-sm font-medium hover:bg-purple-700">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar eliminar -->
+  <div id="modalEliminar" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-gray-800">Desactivar alumna</h2>
+      </div>
+      <p class="text-sm text-gray-600 mb-4">¿Desactivar a <strong id="eliminarNombre"></strong>? No se eliminan sus datos ni historial de pagos.</p>
+      <div class="flex gap-2">
+        <button id="btnCancelarElim" class="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+        <button id="btnConfirmarElim" class="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600">Desactivar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOKEN = localStorage.getItem('token');
+    if (!TOKEN) window.location.href = '/';
+
+    const PLANES = { 1:'1 clase/sem', 2:'2 clases/sem', 3:'3 clases/sem' };
+    const MONTOS = { 1:'$45.000', 2:'$55.000', 3:'$65.000' };
+
+    const api = (path, opts={}) => fetch(`/api/${path}`, {
+      ...opts,
+      headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.removeItem('token'); window.location.href = '/';
+    });
+
+    let alumnas = [];
+
+    async function cargarAlumnas() {
+      const res = await api('alumnas?activas=false');
+      if (res.status === 401) { localStorage.removeItem('token'); window.location.href='/'; return; }
+      alumnas = await res.json();
+      renderTabla(alumnas);
+      const activas = alumnas.filter(a => a.activa).length;
+      document.getElementById('subtitulo').textContent = `${activas} alumnas activas · ${alumnas.length} total`;
+    }
+
+    function renderTabla(lista) {
+      const tbody = document.getElementById('tablaAlumnas');
+      if (!lista.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-400">No hay alumnas registradas</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = lista.map(a => `
+        <tr class="border-b border-gray-50 hover:bg-gray-50 transition ${!a.activa ? 'opacity-50' : ''}">
+          <td class="px-5 py-3 font-medium text-gray-800">${a.nombre}</td>
+          <td class="px-5 py-3 text-gray-600 hidden sm:table-cell">${a.telefono}</td>
+          <td class="px-5 py-3">
+            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+              ${PLANES[a.plan]} · ${MONTOS[a.plan]}
+            </span>
+          </td>
+          <td class="px-5 py-3 text-gray-500 hidden md:table-cell">${formatFecha(a.fecha_ingreso)}</td>
+          <td class="px-5 py-3">
+            <span class="inline-flex items-center gap-1 text-xs font-medium ${a.activa ? 'text-green-600' : 'text-gray-400'}">
+              <span class="w-1.5 h-1.5 rounded-full ${a.activa ? 'bg-green-500' : 'bg-gray-300'}"></span>
+              ${a.activa ? 'Activa' : 'Inactiva'}
+            </span>
+          </td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-1">
+              <button onclick="editarAlumna(${a.id})"
+                class="p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              ${a.activa ? `
+              <button onclick="confirmarEliminar(${a.id}, '${a.nombre.replace(/'/g, "\\'")}')"
+                class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+              </button>` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function formatFecha(fecha) {
+      if (!fecha) return '—';
+      const [y,m,d] = fecha.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    // Buscador
+    document.getElementById('buscador').addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      renderTabla(alumnas.filter(a =>
+        a.nombre.toLowerCase().includes(q) || a.telefono.includes(q)
+      ));
+    });
+
+    // Modal nueva alumna
+    document.getElementById('btnNueva').addEventListener('click', () => {
+      document.getElementById('modalTitulo').textContent = 'Nueva Alumna';
+      document.getElementById('formAlumna').reset();
+      document.getElementById('alumnaId').value = '';
+      document.getElementById('fActivaWrapper').classList.add('hidden');
+      document.getElementById('fIngreso').value = new Date().toISOString().split('T')[0];
+      document.getElementById('errForm').classList.add('hidden');
+      document.getElementById('modalAlumna').classList.remove('hidden');
+    });
+
+    document.getElementById('btnCancelar').addEventListener('click', () => {
+      document.getElementById('modalAlumna').classList.add('hidden');
+    });
+
+    function editarAlumna(id) {
+      const a = alumnas.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('modalTitulo').textContent = 'Editar Alumna';
+      document.getElementById('alumnaId').value  = a.id;
+      document.getElementById('fNombre').value   = a.nombre;
+      document.getElementById('fTelefono').value = a.telefono.replace(/^\+?56/, '');
+      document.getElementById('fPlan').value     = a.plan;
+      document.getElementById('fIngreso').value  = a.fecha_ingreso;
+      document.getElementById('fNotas').value    = a.notas || '';
+      document.getElementById('fActiva').checked = !!a.activa;
+      document.getElementById('fActivaWrapper').classList.remove('hidden');
+      document.getElementById('errForm').classList.add('hidden');
+      document.getElementById('modalAlumna').classList.remove('hidden');
+    }
+
+    document.getElementById('formAlumna').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errDiv = document.getElementById('errForm');
+      errDiv.classList.add('hidden');
+      const btn = document.getElementById('btnGuardar');
+      btn.disabled = true;
+
+      const id      = document.getElementById('alumnaId').value;
+      const telefono = '+56' + document.getElementById('fTelefono').value.replace(/^0/,'');
+      const payload = {
+        nombre:       document.getElementById('fNombre').value.trim(),
+        telefono,
+        plan:         Number(document.getElementById('fPlan').value),
+        fecha_ingreso: document.getElementById('fIngreso').value,
+        notas:        document.getElementById('fNotas').value.trim(),
+        activa:       document.getElementById('fActiva').checked,
+      };
+
+      try {
+        const res = id
+          ? await api(`alumnas/${id}`, { method:'PUT', body: JSON.stringify(payload) })
+          : await api('alumnas',       { method:'POST', body: JSON.stringify(payload) });
+
+        if (res.ok) {
+          document.getElementById('modalAlumna').classList.add('hidden');
+          cargarAlumnas();
+        } else {
+          const { error } = await res.json();
+          errDiv.textContent = error || 'Error al guardar';
+          errDiv.classList.remove('hidden');
+        }
+      } catch {
+        errDiv.textContent = 'Error de conexión';
+        errDiv.classList.remove('hidden');
+      }
+
+      btn.disabled = false;
+    });
+
+    let eliminarId = null;
+    function confirmarEliminar(id, nombre) {
+      eliminarId = id;
+      document.getElementById('eliminarNombre').textContent = nombre;
+      document.getElementById('modalEliminar').classList.remove('hidden');
+    }
+
+    document.getElementById('btnCancelarElim').addEventListener('click', () => {
+      document.getElementById('modalEliminar').classList.add('hidden');
+    });
+
+    document.getElementById('btnConfirmarElim').addEventListener('click', async () => {
+      if (!eliminarId) return;
+      await api(`alumnas/${eliminarId}`, { method: 'DELETE' });
+      document.getElementById('modalEliminar').classList.add('hidden');
+      cargarAlumnas();
+    });
+
+    cargarAlumnas();
+  </script>
+</body>
+</html>
